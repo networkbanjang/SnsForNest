@@ -12,12 +12,12 @@ import { END } from "redux-saga";
 
 const SingUp = () => {
   const [email, onChangeEmail] = useinput('');
-  const [nick, onChangeNick] = useinput('');
+  const [nickname, onChangeNick] = useinput('');
   const [password, onChangePassword] = useinput('');
   const [number, onChangeNumber] = useinput('');
 
   const dispatch = useDispatch();
-  const { sendEmailLoading, signUpLoading, signUpDone, signUpError, me, mailnumber } = useSelector((state) => state.user);
+  const { sendEmailLoading, signUpLoading, signUpDone, signUpError, me, mailnumber } = useSelector((state:any) => state.user);
 
   const style = useMemo(() => ({   //스타일설정
     color: 'red',
@@ -104,9 +104,9 @@ const SingUp = () => {
     }
     dispatch({
       type: SIGN_UP_REQUEST,
-      data: { email, password, nick },
+      data: { email, password, nickname },
     });
-  }, [email, password, passowrdCheck, term, nick, authDone]);
+  }, [email, password, passowrdCheck, term, nickname, authDone]);
 
   return (
     <AppLayout>
@@ -133,7 +133,7 @@ const SingUp = () => {
         <div>
           <label htmlFor='user-nick'>닉네임</label>
           <br />
-          <Input name='user-nick' value={nick} required onChange={onChangeNick} />
+          <Input name='user-nick' value={nickname} required onChange={onChangeNick} />
         </div>
         <div>
           <label htmlFor='user-password'>비밀번호</label>

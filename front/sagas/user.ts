@@ -27,15 +27,19 @@ import {
   SEND_EMAIL_SUCCESS,
   UNFOLLOW_FAILURE,
   UNFOLLOW_REQUEST,
-  UNFOLLOW_SUCCESS
+  UNFOLLOW_SUCCESS,
 } from "../reducers/user";
-import { LOG_OUT_REQUEST, LOG_OUT_SUCCESS, SIGN_UP_FAILURE, SIGN_UP_REQUEST, SIGN_UP_SUCCESS } from '../reducers/user';
-import axios from 'axios'
-
-
+import {
+  LOG_OUT_REQUEST,
+  LOG_OUT_SUCCESS,
+  SIGN_UP_FAILURE,
+  SIGN_UP_REQUEST,
+  SIGN_UP_SUCCESS,
+} from "../reducers/user";
+import axios from "axios";
 
 function logInAPI(data) {
-  return axios.post('/user/login', data);
+  return axios.post("/user/login", data);
 }
 
 function* login(action) {
@@ -48,13 +52,13 @@ function* login(action) {
   } catch (err) {
     yield put({
       type: LOG_IN_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
 function logOutAPI() {
-  return axios.post('user/logout')
+  return axios.post("user/logout");
 }
 
 function* logOut() {
@@ -67,12 +71,12 @@ function* logOut() {
     yield put({
       type: LOG_OUT_FAILURE,
       error: error.response.data,
-    })
+    });
   }
 }
 
 function signUpAPI(data) {
-  return axios.post('/user', data);  //data는 객체
+  return axios.post("/user", data); //data는 객체
 }
 
 function* signUP(action) {
@@ -84,13 +88,13 @@ function* signUP(action) {
   } catch (err) {
     yield put({
       type: SIGN_UP_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
 function followAPI(data) {
-  return axios.patch(`user/${data}/follow`)
+  return axios.patch(`user/${data}/follow`);
 }
 
 function* follow(action) {
@@ -104,7 +108,7 @@ function* follow(action) {
     yield put({
       type: FOLLOW_FAILURE,
       error: error.response.data,
-    })
+    });
   }
 }
 
@@ -123,12 +127,13 @@ function* unfollow(action) {
     yield put({
       type: UNFOLLOW_FAILURE,
       error: error.response.data,
-    })
+    });
   }
 }
 
-function loadUserAPI() {            //내정보 가지고오기
-  return axios.get('/user');
+function loadUserAPI() {
+  //내정보 가지고오기
+  return axios.get("/user");
 }
 
 function* loadUser(action) {
@@ -141,14 +146,13 @@ function* loadUser(action) {
   } catch (err) {
     yield put({
       type: LOAD_MY_INFO_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
-
-
-function loadOtherAPI(data) {                           //남의 정보 가지고오기
+function loadOtherAPI(data) {
+  //남의 정보 가지고오기
   return axios.get(`/user/${data}`);
 }
 
@@ -162,16 +166,17 @@ function* loadOther(action) {
   } catch (err) {
     yield put({
       type: LOAD_OTHER_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
-function changeNickAPI(data) {//닉네임변경
-  return axios.patch('/user/nickname', { nickname: data });
+function changeNickAPI(data) {
+  //닉네임변경
+  return axios.patch("/user/nickname", { nickname: data });
 }
 
-function* changeNick(action) {  
+function* changeNick(action) {
   try {
     const result = yield call(changeNickAPI, action.data);
     yield put({
@@ -181,13 +186,14 @@ function* changeNick(action) {
   } catch (err) {
     yield put({
       type: CHANGE_NICKNAME_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
-function sendEmailAPI(data) { //인증번호 보내기
-  return axios.post('/user/sendMail', data);
+function sendEmailAPI(data) {
+  //인증번호 보내기
+  return axios.post("/user/sendMail", data);
 }
 
 function* sendEmail(action) {
@@ -200,13 +206,14 @@ function* sendEmail(action) {
   } catch (err) {
     yield put({
       type: SEND_EMAIL_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
-function prifileUpdateAPI(data) { //프로필 수정
-  return axios.post('/user/profileUpdate', data);
+function prifileUpdateAPI(data) {
+  //프로필 수정
+  return axios.post("/user/profileUpdate", data);
 }
 
 function* prifileUpdate(action) {
@@ -219,13 +226,14 @@ function* prifileUpdate(action) {
   } catch (err) {
     yield put({
       type: PROFILE_UPDATE_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
 
-function prifileSubmitAPI(data) { //프로필 수정 적용
-  return axios.patch('/user/profilesubmit', { profile: data });
+function prifileSubmitAPI(data) {
+  //프로필 수정 적용
+  return axios.patch("/user/profilesubmit", { profile: data });
 }
 
 function* prifileSubmit(action) {
@@ -238,7 +246,7 @@ function* prifileSubmit(action) {
   } catch (err) {
     yield put({
       type: PROFILE_SUBMIT_FAILURE,
-      error: err.response.data,
+      error: err.response.data.error,
     });
   }
 }
@@ -269,7 +277,6 @@ function* watchChangeNick() {
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNick);
 }
 
-
 function* watchotherInfo() {
   yield takeLatest(LOAD_OTHER_REQUEST, loadOther);
 }
@@ -299,6 +306,5 @@ export default function* userSaga() {
     fork(watchSendMail),
     fork(watchProfileUpdate),
     fork(watchProfileSubmit),
-
-  ])
+  ]);
 }

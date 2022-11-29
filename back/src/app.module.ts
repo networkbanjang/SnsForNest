@@ -9,6 +9,7 @@ import { Posts } from './entities/Posts';
 import { Images } from './entities/Images';
 import { Hashtags } from './entities/Hashtags';
 import { Comments } from './entities/Comments';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { Comments } from './entities/Comments';
       logging: true, //로그 남기기
       charset: 'utf8mb4',
     }),
-  ],
+    UserModule, ],
   controllers: [AppController],
   providers: [AppService],
 })

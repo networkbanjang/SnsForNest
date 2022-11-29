@@ -12,6 +12,7 @@ import {
 import { Comments } from './Comments';
 import { Posts } from './Posts';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail } from 'class-validator';
 
 
 @Index('email', ['email'], { unique: true })
@@ -28,6 +29,7 @@ export class Users {
     example:"1234@1234.com",
     description:"이메일"
   })
+  @IsEmail()
   @Column('varchar', { name: 'email', unique: true, length: 40 })
   email: string;
 

@@ -5,10 +5,10 @@ import { UPLOAD_IMAGES_REQUEST, REMOVE_IMAGE, ADD_POST_REQUEST } from "../reduce
 import backurl from "../config/config";
 
 const PostForm = () => {
-  const { imagePaths } = useSelector((state) => state.post);
+  const { imagePaths } = useSelector((state:any) => state.post);
   const dispatch = useDispatch();
   //이미지
-  const imageInput = useRef();              //파일버튼 숨기기용
+  const imageInput:any = useRef();              //파일버튼 숨기기용
   const onClickImageUpload = useCallback(() => {
     imageInput.current.click();              //imageInput을 클릭한걸로 만든다
   }, [imageInput.current])
@@ -48,13 +48,13 @@ const PostForm = () => {
       type: UPLOAD_IMAGES_REQUEST,
       data: imageFormData,
     })
-  });
+  },[]);
   const onremoveImage = useCallback((index) => () => {//고차함수
     dispatch({
       type: REMOVE_IMAGE,
       data: index,
     })
-  })
+  },[])
 
   return (
     <Form style={{ margin: '10px 0 20px' }} encType="multipart/form-data" onFinish={onsubmit} >
