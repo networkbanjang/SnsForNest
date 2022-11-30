@@ -10,6 +10,7 @@ import { Images } from './entities/Images';
 import { Hashtags } from './entities/Hashtags';
 import { Comments } from './entities/Comments';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,12 +22,14 @@ import { UserModule } from './user/user.module';
       username: 'root',
       password: process.env.DBPASSWORD,
       database: process.env.DBNAME,
-      entities: [Users,Posts,Images,Hashtags,Comments],
+      entities: [Users, Posts, Images, Hashtags, Comments],
       synchronize: false, //동기화
       logging: true, //로그 남기기
       charset: 'utf8mb4',
     }),
-    UserModule, ],
+    UserModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

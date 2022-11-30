@@ -52,7 +52,7 @@ function* login(action) {
   } catch (err) {
     yield put({
       type: LOG_IN_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -88,7 +88,7 @@ function* signUP(action) {
   } catch (err) {
     yield put({
       type: SIGN_UP_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -146,7 +146,7 @@ function* loadUser(action) {
   } catch (err) {
     yield put({
       type: LOAD_MY_INFO_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -166,7 +166,7 @@ function* loadOther(action) {
   } catch (err) {
     yield put({
       type: LOAD_OTHER_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -186,7 +186,7 @@ function* changeNick(action) {
   } catch (err) {
     yield put({
       type: CHANGE_NICKNAME_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -206,7 +206,7 @@ function* sendEmail(action) {
   } catch (err) {
     yield put({
       type: SEND_EMAIL_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -226,7 +226,7 @@ function* prifileUpdate(action) {
   } catch (err) {
     yield put({
       type: PROFILE_UPDATE_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }
@@ -246,7 +246,7 @@ function* prifileSubmit(action) {
   } catch (err) {
     yield put({
       type: PROFILE_SUBMIT_FAILURE,
-      error: err.response.data.error,
+      error: err.response.data.error.message,
     });
   }
 }

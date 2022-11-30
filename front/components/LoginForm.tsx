@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import Link from 'next/link';
 import styled from 'styled-components';
@@ -18,7 +18,7 @@ const FormWrapper = styled(Form)`
   margin:10px;
 `;
 const LoginForm = () => {
-  const { logInLoading, logInError } = useSelector((state) => state.user);
+  const { logInLoading, logInError } = useSelector((state:any) => state.user);
   const dispath = useDispatch();
 
   const [email, onChangeEmail] = useinput('');
