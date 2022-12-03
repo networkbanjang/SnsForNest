@@ -45,7 +45,7 @@ export class Users {
     description:"비밀번호"
   })
   @Column('varchar', { name: 'password', nullable: true, length: 140 })
-  password: string | null;
+  password?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

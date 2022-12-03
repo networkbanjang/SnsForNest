@@ -2,7 +2,6 @@ import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { LoggerMiddleware } from './logger/looger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from './entities/Users';
 import { Posts } from './entities/Posts';
@@ -11,6 +10,7 @@ import { Hashtags } from './entities/Hashtags';
 import { Comments } from './entities/Comments';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { LoggerMiddleware } from './logger/looger.middleware';
 
 @Module({
   imports: [

@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { UndifinedToNullInterceprtor } from './interceptor/undifined.interceptor';
 import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './filter/http-exception.filter';
 import * as passport from 'passport';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
+import { UndifinedToNullInterceprtor } from './interceptor/undifined.interceptor';
+import { HttpExceptionFilter } from './filter/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -39,7 +39,7 @@ async function bootstrap() {
     }),
   );
   app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(passport.session()); //deserializeUser
 
   await app.listen(PORT);
   console.log(`PORT:${PORT} On`);

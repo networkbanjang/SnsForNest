@@ -14,6 +14,43 @@ export class UserService {
     private readonly userRepository: Repository<Users>,
   ) {}
 
+  async getUserInfo(user: Users): Promise<Users> {
+    try {
+      if (user) {
+        const findUser = await this.userRepository.findOne({
+          where: { id: user.id },
+          select: {
+            Posts: { id: true },
+            Follows: { id: true },
+            Following: { id: true },
+          },
+          relations: ['Posts', 'Follows', 'Following'],
+        });
+        const { password, ...result } = findUser;
+        console.log(result);
+        return result;
+      }
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('유저정보를 받아오지 못햇습니다,', 500);
+    }
+  }
+
+  async login(user: Users) {
+    const result = await this.userRepository.findOne({
+      where: { id: user.id },
+      select: {
+        Posts: { id: true },
+        Follows: { id: true },
+        Following: { id: true },
+      },
+
+      relations: ['Posts', 'Follows', 'Following'],
+    });
+    const { password, ...resultSecret } = result;
+    return resultSecret;
+  }
+
   async sendMail(number: number, email: string): Promise<number> {
     try {
       await this.mailerService.sendMail({
@@ -48,5 +85,4 @@ export class UserService {
       throw new HttpException(error.message, error.status);
     }
   }
-
 }

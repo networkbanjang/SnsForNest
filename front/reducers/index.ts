@@ -1,11 +1,12 @@
 import { HYDRATE } from "next-redux-wrapper";
-import { combineReducers } from 'redux';
-import user from './user';
-import post from './post';
-import chat from './chat';
-
+import { combineReducers } from "redux";
+import user from "./user";
+import post from "./post";
+import chat from "./chat";
 
 // (이전상태, 액션) => 다음상태
+export type IRootState = ReturnType<typeof rootReducer>;
+
 const rootReducer = (state, action) => {
   switch (action.type) {
     case HYDRATE:

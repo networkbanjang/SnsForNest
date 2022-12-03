@@ -1,6 +1,8 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
 import { ApiOperation, ApiProperty, ApiResponse } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/auth/local.AuthGuard';
+import { User } from 'src/decorator/decorator';
+import { Users } from 'src/entities/Users';
 import { JoinDTO } from './dto/join.request.dto';
 import { UserService } from './user.service';
 
@@ -8,10 +10,16 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: '유저정보 불러오기' })
+  @Get()
+  getUser(@User() user: Users): Promise<Users> {
+    return this.userService.getUserInfo(user);
+  }
+
   @ApiProperty({
-    example:1,
-    description:"Users 아이디",
-    required:true,
+    example: 1,
+    description: 'Users 아이디',
+    required: true,
   })
   @ApiOperation({ summary: '이메일로 인증번호 보내기' })
   @Post('/sendMail')
@@ -34,7 +42,8 @@ export class UserController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  logIn(@Req() req:any) {
-    return req.user;
+  logIn(@User() user: Users) {
+    const me = this.userService.login(user);
+    return me;
   }
 }

@@ -19,7 +19,8 @@ export class LocalSerializer extends PassportSerializer {
     done(null, user.id);
   }
 
-  async deserializeUser(userId: string, done: CallableFunction) {  //페이지 방문시마다 실행
+  async deserializeUser(userId: string, done: CallableFunction) {
+    //페이지 방문시마다 실행
     return await this.usersRepository
       .findOneOrFail({
         where: { id: +userId },
