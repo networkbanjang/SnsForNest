@@ -11,7 +11,7 @@ import { Posts } from './Posts';
 import { ApiProperty } from '@nestjs/swagger';
 
 
-@Entity('hashtags', { schema: 'react_nodebird' })
+@Entity()
 export class Hashtags {
   @ApiProperty({
     example: 1,
@@ -33,6 +33,7 @@ export class Hashtags {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  //이하 관계
   @JoinTable({
     name: 'posthashtags',
     joinColumn: {

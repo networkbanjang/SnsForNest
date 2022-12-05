@@ -5,6 +5,7 @@ import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
 import { JoinDTO } from './dto/join.request.dto';
 import * as bcrypt from 'bcrypt';
+import { FollowDTO } from './dto/follow.request.dto';
 
 @Injectable()
 export class UserService {
@@ -21,13 +22,12 @@ export class UserService {
           where: { id: user.id },
           select: {
             Posts: { id: true },
-            Follows: { id: true },
-            Following: { id: true },
+            Followers: { id: true },
+            Followings: { id: true },
           },
-          relations: ['Posts', 'Follows', 'Following'],
+          relations: ['Posts', 'Followers', 'Followings'],
         });
         const { password, ...result } = findUser;
-        console.log(result);
         return result;
       }
     } catch (error) {
@@ -41,11 +41,9 @@ export class UserService {
       where: { id: user.id },
       select: {
         Posts: { id: true },
-        Follows: { id: true },
-        Following: { id: true },
       },
 
-      relations: ['Posts', 'Follows', 'Following'],
+      relations: ['Posts', 'Followers', 'Followings'],
     });
     const { password, ...resultSecret } = result;
     return resultSecret;
@@ -83,6 +81,37 @@ export class UserService {
       return '가입이 완료되었습니다.';
     } catch (error) {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async getFollowings(limit: number, user: Users): Promise<FollowDTO[]> {
+    try {
+      const findUser: FollowDTO[] = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.id', 'user.nickname'])
+        .limit(limit)
+        .where('Followerid =:id', { id: user.id })
+        .innerJoin('user.Followers', 'b')
+        .getMany();
+      return findUser;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('서버에 문제가생겼습니다.', 500);
+    }
+  }
+  async getFollowers(limit: number, user: Users): Promise<FollowDTO[]> {
+    try {
+      const findUser: FollowDTO[] = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.id', 'user.nickname'])
+        .limit(limit)
+        .where('Followingid =:id', { id: user.id })
+        .innerJoin('user.Followings', 'b')
+        .getMany();
+      return findUser;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('서버에 문제가생겼습니다.', 500);
     }
   }
 }

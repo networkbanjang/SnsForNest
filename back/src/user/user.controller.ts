@@ -1,8 +1,20 @@
-import { Controller, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Query,
+  Get,
+  ParseIntPipe,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { ApiOperation, ApiProperty, ApiResponse } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/auth/local.AuthGuard';
+import { LoggedInGuard } from 'src/auth/logged.guard';
 import { User } from 'src/decorator/decorator';
 import { Users } from 'src/entities/Users';
+import { FollowDTO } from './dto/follow.request.dto';
 import { JoinDTO } from './dto/join.request.dto';
 import { UserService } from './user.service';
 
@@ -41,9 +53,47 @@ export class UserController {
 
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post('/login')
   logIn(@User() user: Users) {
     const me = this.userService.login(user);
     return me;
+  }
+
+  @ApiOperation({ summary: '로그아웃' })
+  @Post('/logout')
+  logout(@Req() req: Express.Request, @Res() res): void {
+    req.logOut(() => {
+      res.redirect('/');
+    });
+  }
+
+  @ApiOperation({ summary: '팔로잉 불러오기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: FollowDTO,
+  })
+  @UseGuards(new LoggedInGuard())
+  @Get('/followings')
+  getFollowings(
+    @Query('limit', ParseIntPipe) limit: number,
+    @User() user: Users,
+  ): Promise<FollowDTO[]> {
+    return this.userService.getFollowings(limit, user);
+  }
+
+  @ApiOperation({ summary: '팔로워 불러오기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: FollowDTO,
+  })
+  @UseGuards(new LoggedInGuard())
+  @Get('/followers')
+  getFollowers(
+    @Query('limit', ParseIntPipe) limit: number,
+    @User() user: Users,
+  ): Promise<FollowDTO[]> {
+    return this.userService.getFollowers(limit, user);
   }
 }

@@ -11,6 +11,7 @@ import { Comments } from './entities/Comments';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './logger/looger.middleware';
+import { Follow } from './entities/Follow';
 
 @Module({
   imports: [
@@ -22,8 +23,8 @@ import { LoggerMiddleware } from './logger/looger.middleware';
       username: 'root',
       password: process.env.DBPASSWORD,
       database: process.env.DBNAME,
-      entities: [Users, Posts, Images, Hashtags, Comments],
-      synchronize: false, //동기화
+      entities: [Users, Posts, Images, Hashtags, Comments,Follow],
+      synchronize: false, //동기화 
       logging: true, //로그 남기기
       charset: 'utf8mb4',
     }),

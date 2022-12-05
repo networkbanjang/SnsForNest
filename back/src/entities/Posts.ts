@@ -17,9 +17,8 @@ import { Images } from './Images';
 import { Users } from './Users';
 import { ApiProperty } from '@nestjs/swagger';
 
-@Index('RetweetId', ['retweetId'], {})
-@Index('UserId', ['userId'], {})
-@Entity('posts', { schema: 'react_nodebird' })
+
+@Entity()
 export class Posts {
   @ApiProperty({
     example: 1,
