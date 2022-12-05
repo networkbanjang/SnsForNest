@@ -8,8 +8,14 @@ import {
   ParseIntPipe,
   Req,
   Res,
+  Patch,
 } from '@nestjs/common';
-import { ApiOperation, ApiProperty, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiProperty,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/auth/local.AuthGuard';
 import { LoggedInGuard } from 'src/auth/logged.guard';
 import { User } from 'src/decorator/decorator';
@@ -22,24 +28,56 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  //Get
   @ApiOperation({ summary: '유저정보 불러오기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: Users,
+  })
   @Get()
-  getUser(@User() user: Users): Promise<Users> {
-    return this.userService.getUserInfo(user);
+  async getUser(@User() user: Users): Promise<Users> {
+    return await this.userService.getUserInfo(user);
   }
 
+  @ApiOperation({ summary: '팔로잉 불러오기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: FollowDTO,
+  })
+  @ApiParam({ name: 'limit', type: 'number', example: '3' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/followings')
+  async getFollowings(
+    @Query('limit', ParseIntPipe) limit: number,
+    @User() user: Users,
+  ): Promise<FollowDTO[]> {
+    return await this.userService.getFollowings(limit, user);
+  }
+
+  @ApiOperation({ summary: '팔로워 불러오기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: FollowDTO,
+  })
+  @ApiParam({ name: 'limit', type: 'number', example: '3' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/followers')
+  async getFollowers(
+    @Query('limit', ParseIntPipe) limit: number,
+    @User() user: Users,
+  ): Promise<FollowDTO[]> {
+    return await this.userService.getFollowers(limit, user);
+  }
+
+  //Post
   @ApiProperty({
     example: 1,
     description: 'Users 아이디',
     required: true,
   })
-  @ApiOperation({ summary: '이메일로 인증번호 보내기' })
-  @Post('/sendMail')
-  sendMail(@Body() body): Promise<number> {
-    const { number, email } = body;
-    return this.userService.sendMail(number, email);
-  }
-
   @ApiResponse({
     status: 200,
     description: '성공.',
@@ -47,15 +85,21 @@ export class UserController {
   })
   @ApiOperation({ summary: '회원가입' })
   @Post('')
-  singUpRequest(@Body() joinDTO: JoinDTO): Promise<string> {
-    return this.userService.signUp(joinDTO);
+  async singUpRequest(@Body() joinDTO: JoinDTO): Promise<string> {
+    const result = await this.userService.signUp(joinDTO);
+    return result;
   }
 
   @ApiOperation({ summary: '로그인' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: Users,
+  })
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  logIn(@User() user: Users) {
-    const me = this.userService.login(user);
+  async logIn(@User() user: Users) {
+    const me = await this.userService.login(user);
     return me;
   }
 
@@ -67,33 +111,18 @@ export class UserController {
     });
   }
 
-  @ApiOperation({ summary: '팔로잉 불러오기' })
-  @ApiResponse({
-    status: 200,
-    description: '성공',
-    type: FollowDTO,
-  })
-  @UseGuards(new LoggedInGuard())
-  @Get('/followings')
-  getFollowings(
-    @Query('limit', ParseIntPipe) limit: number,
-    @User() user: Users,
-  ): Promise<FollowDTO[]> {
-    return this.userService.getFollowings(limit, user);
+  @ApiOperation({ summary: '이메일로 인증번호 보내기' })
+  @Post('/sendMail')
+  async sendMail(@Body() body): Promise<number> {
+    const { number, email } = body;
+    return await this.userService.sendMail(number, email);
   }
 
-  @ApiOperation({ summary: '팔로워 불러오기' })
-  @ApiResponse({
-    status: 200,
-    description: '성공',
-    type: FollowDTO,
-  })
+  //Patch
+  @ApiOperation({ summary: '닉네임 변경' })
   @UseGuards(new LoggedInGuard())
-  @Get('/followers')
-  getFollowers(
-    @Query('limit', ParseIntPipe) limit: number,
-    @User() user: Users,
-  ): Promise<FollowDTO[]> {
-    return this.userService.getFollowers(limit, user);
+  @Patch('/nickname')
+  async updateNickname(@Body('nickname') nick: string, @User() user: Users) {
+    return await this.userService.updateNickname(nick, user);
   }
 }

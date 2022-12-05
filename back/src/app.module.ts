@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './logger/looger.middleware';
 import { Follow } from './entities/Follow';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Follow } from './entities/Follow';
     }),
     UserModule,
     AuthModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

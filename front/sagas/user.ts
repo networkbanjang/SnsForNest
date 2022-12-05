@@ -146,7 +146,7 @@ function* loadUser(action) {
   } catch (err) {
     yield put({
       type: LOAD_MY_INFO_FAILURE,
-      error: err.response.data.error.message,
+      error: err.response.data,
     });
   }
 }

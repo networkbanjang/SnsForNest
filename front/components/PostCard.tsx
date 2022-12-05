@@ -11,11 +11,12 @@ import FollowButton from './Follow';
 import Link from 'next/link';
 import moment from 'moment';
 import 'moment/locale/ko'; // 이줄 추가
+import { IRootState } from '../reducers';
 
 
 const PostCard = ({ post }) => {
   moment.locale('ko'); //날짜 라이브러리 한글로 바꾸기
-  const id = useSelector((state) => state.user).me?.id;  //옵셔널 체이닝 AA ?. BB == 있으면 해라
+  const id = useSelector((state:IRootState) => state.user).me?.id;  //옵셔널 체이닝 AA ?. BB == 있으면 해라
 
   const dispatch = useDispatch();
   //css영역
@@ -80,11 +81,11 @@ const PostCard = ({ post }) => {
       type: RETWEET_REQUEST,
       data: post.id,
     }, [id]);
-  })
+  },[])
 
 
 
-  const liked = post.Likers.find((e) => e.id === id);
+  const liked = post.Likes.find((e) => e.id === id);
 
   return (
     <div style={style}>
@@ -180,7 +181,7 @@ PostCard.prototype = {
     createAt: PropTypes.string,
     Comments: PropTypes.arrayOf(PropTypes.object),
     Images: PropTypes.arrayOf(PropTypes.object),
-    Likers: PropTypes.arrayOf(PropTypes.object),
+    Likes: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
 };
 export default PostCard;

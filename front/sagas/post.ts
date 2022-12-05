@@ -1,5 +1,13 @@
 import axios from "axios";
-import { all, fork, takeLatest, delay, put, throttle, call } from "redux-saga/effects";
+import {
+  all,
+  fork,
+  takeLatest,
+  delay,
+  put,
+  throttle,
+  call,
+} from "redux-saga/effects";
 import {
   ADD_COMMENT_FAILURE,
   ADD_COMMENT_REQUEST,
@@ -36,14 +44,18 @@ import {
   UPDATE_POST_SUCCESS,
   UPLOAD_IMAGES_FAILURE,
   UPLOAD_IMAGES_REQUEST,
-  UPLOAD_IMAGES_SUCCESS
-} from "../reducers/post"
-import { ADD_POST_FAILURE, ADD_POST_REQUEST, ADD_POST_SUCCESS } from "../reducers/post";
+  UPLOAD_IMAGES_SUCCESS,
+} from "../reducers/post";
+import {
+  ADD_POST_FAILURE,
+  ADD_POST_REQUEST,
+  ADD_POST_SUCCESS,
+} from "../reducers/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 
 //스크롤링
 function loadPostsAPI(lastId) {
-  return axios.get(`/posts?lastId=${lastId || 0}&limit=5`);
+  return axios.get(`/post?limit=5&lastId=${lastId || 0}`);
 }
 function* loadPosts(action) {
   try {
@@ -80,11 +92,10 @@ function* loadPost(action) {
 }
 
 //유저 게시글가져오기
-function loadUserPostsAPI(data,lastId) {
-  return axios.get(`/user/${data}/posts?lastId=${lastId || 0}`);
+function loadUserPostsAPI(data, lastId) {
+  return axios.get(`/user/${data}/post?lastId=${lastId || 0}`);
 }
 function* loadUserPosts(action) {
-  console.log('액션',action);
   try {
     const result = yield call(loadUserPostsAPI, action.data, action.lastId);
     yield put({
@@ -102,7 +113,9 @@ function* loadUserPosts(action) {
 
 //해쉬태그
 function loadHashtagPostsAPI(data, lastId) {
-  return axios.get(`/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`);
+  return axios.get(
+    `/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`
+  );
 }
 function* loadHashtagPosts(action) {
   try {
@@ -121,10 +134,11 @@ function* loadHashtagPosts(action) {
 
 //게시글 작성
 function addPostAPI(data) {
-  return axios.post(`/post`, data)
+  return axios.post(`/post`, data);
 }
 
 function* addPost(action) {
+  console.log("아니이게 뭐야",action,action.data);
   try {
     const result = yield call(addPostAPI, action.data);
     yield put({
@@ -136,17 +150,17 @@ function* addPost(action) {
       data: result.data.id,
     });
   } catch (error) {
-    console.error('로그', error);
+    console.error("로그", error);
     yield put({
       type: ADD_POST_FAILURE,
       error: error.reponse.data,
-    })
+    });
   }
 }
 
 //댓글 추가
 function addCommentAPI(data) {
-  return axios.post(`/post/${data.postId}/comment`, data)
+  return axios.post(`/post/${data.postId}/comment`, data);
 }
 
 function* addComment(action) {
@@ -160,7 +174,7 @@ function* addComment(action) {
     yield put({
       type: ADD_COMMENT_FAILURE,
       data: error.reponse.data,
-    })
+    });
   }
 }
 
@@ -171,13 +185,11 @@ function likePostAPI(data) {
 
 function* likePost(action) {
   try {
-    const result = yield call(likePostAPI, action.data);  //postId,UserId
-    console.log("결과", result);
+    const result = yield call(likePostAPI, action.data); //postId,UserId
     yield put({
       type: LIKE_POST_SUCCESS,
       data: result.data,
     });
-
   } catch (err) {
     console.error(err);
     yield put({
@@ -192,7 +204,6 @@ function unLikePostAPI(data) {
   return axios.delete(`/post/${data}/like`);
 }
 
-
 function* unLikePost(action) {
   try {
     const result = yield call(unLikePostAPI, action.data);
@@ -200,7 +211,6 @@ function* unLikePost(action) {
       type: UNLIKE_POST_SUCCESS,
       data: result.data,
     });
-
   } catch (err) {
     console.error(err);
     yield put({
@@ -237,7 +247,7 @@ function* removePost(action) {
 
 //이미지 업로드
 function uploadImagesAPI(data) {
-  return axios.post(`/post/images`, data);   //formdata는 감싸면 안됨
+  return axios.post(`/post/images`, data); //formdata는 감싸면 안됨
 }
 
 function* uploadImages(action) {
@@ -247,7 +257,6 @@ function* uploadImages(action) {
       type: UPLOAD_IMAGES_SUCCESS,
       data: result.data,
     });
-
   } catch (err) {
     console.error(err);
     yield put({
@@ -280,7 +289,7 @@ function* retweet(action) {
 
 //게시글 수정
 function updatePostAPI(data) {
-  return axios.patch(`/post/${data.postId}`,data);
+  return axios.patch(`/post/${data.postId}`, data);
 }
 
 function* updatePost(action) {
@@ -299,10 +308,9 @@ function* updatePost(action) {
   }
 }
 
-
 //팔로잉한 게시글
 function loadFollowingPostsAPI(data, lastId) {
-  return axios.get(`/posts/following?limit=5&lastId=${lastId || 0}`);
+  return axios.get(`/post/following?limit=5&lastId=${lastId || 0}`);
 }
 function* loadFollowingPosts(action) {
   try {
@@ -325,19 +333,23 @@ function* watchLoadPosts() {
   yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
 }
 
-function* watchLoadUserPosts() { //유저검색
+function* watchLoadUserPosts() {
+  //유저검색
   yield throttle(5000, LOAD_USER_POSTS_REQUEST, loadUserPosts);
 }
 
-function* watchLoadHashtagPosts() {//해쉬태그
+function* watchLoadHashtagPosts() {
+  //해쉬태그
   yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
 
-function* watchFollowingPosts() {//팔로잉 유저 게시글 보기
+function* watchFollowingPosts() {
+  //팔로잉 유저 게시글 보기
   yield throttle(5000, LOAD_FOLLOWINGPOSTS_REQUEST, loadFollowingPosts);
 }
 
-function* watchLoadPost() {  //단일
+function* watchLoadPost() {
+  //단일
   yield takeLatest(LOAD_POST_REQUEST, loadPost);
 }
 
@@ -371,7 +383,6 @@ function* watchUpdatePost() {
   yield takeLatest(UPDATE_POST_REQUEST, updatePost);
 }
 
-
 export default function* postSaga() {
   yield all([
     fork(watchuploadImages),
@@ -387,5 +398,5 @@ export default function* postSaga() {
     fork(watchLoadHashtagPosts),
     fork(watchUpdatePost),
     fork(watchFollowingPosts),
-  ])
+  ]);
 }

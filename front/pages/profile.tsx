@@ -12,6 +12,7 @@ import { LOAD_MY_INFO_REQUEST } from "../reducers/user";
 import axios from "axios";
 import wrapper from "../store/configureStore";
 import { END } from "redux-saga";
+import { IRootState } from "../reducers";
 
 const fetcher = (url) => axios.get(url, { withCredentials: true }).then((result) => result.data);
 
@@ -25,7 +26,7 @@ const Profile = ({ data }) => {
   // fetcher = 이주소를 실제로 어떻게 가져올것인가
   const { data: followingsData, error: followingError } = useSWR(`http://localhost:3065/user/followings?limit=${followingsLimit}`, fetcher)
   //둘 다 없으면 로딩중, data가 차있으면성공 error가 차있으면 실패
-  const { me } = useSelector((state) => state.user);
+  const { me } = useSelector((state:IRootState) => state.user);
 
 
   useEffect(() => {
@@ -36,11 +37,11 @@ const Profile = ({ data }) => {
 
   const loadMoreFollowings = useCallback(() => {
     setfollowingsLimit((prev) => prev + 3);
-  })
+  },[])
 
   const loadMoreFollowers = useCallback(() => {
     setfollowerLimit((prev) => prev + 3);
-  })
+  },[])
 
   if (followerError || followingError) {
     console.error(followerError, followingError);

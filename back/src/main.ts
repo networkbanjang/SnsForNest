@@ -2,18 +2,30 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import * as passport from 'passport';
-import * as cookieParser from 'cookie-parser';
-import * as session from 'express-session';
+import passport from 'passport';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
 import { UndifinedToNullInterceprtor } from './interceptor/undifined.interceptor';
 import { HttpExceptionFilter } from './filter/http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import path from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  if (process.env.NODE_ENV === 'production') {
+    app.enableCors({
+      origin: true, //배포용으로는 콜스를 따로 지정할 예정
+      credentials: true,
+    });
+  } else {
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
+
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'));
+
   const PORT = process.env.PORT || 3000;
   const config = new DocumentBuilder()
     .setTitle('next-nest SNS 만들기')

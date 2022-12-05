@@ -1,6 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException, Injectable, ConflictException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository} from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
 import { JoinDTO } from './dto/join.request.dto';
@@ -13,11 +13,16 @@ export class UserService {
     private readonly mailerService: MailerService,
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
+
   ) {}
 
+  //Get
+
   async getUserInfo(user: Users): Promise<Users> {
-    try {
+    //유저정보 불러오기
+    try { 
       if (user) {
+      
         const findUser = await this.userRepository.findOne({
           where: { id: user.id },
           select: {
@@ -36,8 +41,43 @@ export class UserService {
     }
   }
 
+  async getFollowings(limit: number, user: Users): Promise<FollowDTO[]> {
+    //팔로잉 불러오기
+    try {
+      const findUser: FollowDTO[] = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.id', 'user.nickname'])
+        .limit(limit)
+        .where('Followerid =:id', { id: user.id })
+        .innerJoin('user.Followers', 'b')
+        .getMany();
+      return findUser;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('서버에 문제가생겼습니다.', 500);
+    }
+  }
+  async getFollowers(limit: number, user: Users): Promise<FollowDTO[]> {
+    //팔로워 불러오기
+    try {
+      const findUser: FollowDTO[] = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.id', 'user.nickname'])
+        .limit(limit)
+        .where('Followingid =:id', { id: user.id })
+        .innerJoin('user.Followings', 'b')
+        .getMany();
+      return findUser;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('서버에 문제가생겼습니다.', 500);
+    }
+  }
+
+  //Post
   async login(user: Users) {
     const result = await this.userRepository.findOne({
+      //로그인
       where: { id: user.id },
       select: {
         Posts: { id: true },
@@ -50,6 +90,7 @@ export class UserService {
   }
 
   async sendMail(number: number, email: string): Promise<number> {
+    //이메일 보내기
     try {
       await this.mailerService.sendMail({
         to: email, //받는사람
@@ -65,6 +106,7 @@ export class UserService {
   }
 
   async signUp(joinDTO: JoinDTO): Promise<string> {
+    //회원가입,
     const { email, nickname, password } = joinDTO;
     try {
       const user = await this.userRepository.findOne({ where: { email } });
@@ -84,34 +126,22 @@ export class UserService {
     }
   }
 
-  async getFollowings(limit: number, user: Users): Promise<FollowDTO[]> {
-    try {
-      const findUser: FollowDTO[] = await this.userRepository
-        .createQueryBuilder('user')
-        .select(['user.id', 'user.nickname'])
-        .limit(limit)
-        .where('Followerid =:id', { id: user.id })
-        .innerJoin('user.Followers', 'b')
-        .getMany();
-      return findUser;
-    } catch (error) {
-      console.error(error);
-      throw new HttpException('서버에 문제가생겼습니다.', 500);
+  //patch
+
+  async updateNickname(nick: string, user: Users) {
+    if (!user) {
+      throw new HttpException('잘못 된 접근입니다', 403);
     }
-  }
-  async getFollowers(limit: number, user: Users): Promise<FollowDTO[]> {
     try {
-      const findUser: FollowDTO[] = await this.userRepository
-        .createQueryBuilder('user')
-        .select(['user.id', 'user.nickname'])
-        .limit(limit)
-        .where('Followingid =:id', { id: user.id })
-        .innerJoin('user.Followings', 'b')
-        .getMany();
+      const findUser: Users = await this.userRepository.findOneBy({
+        id: user.id,
+      });
+      findUser.nickname=nick;
+      await this.userRepository.save(findUser);
       return findUser;
     } catch (error) {
       console.error(error);
-      throw new HttpException('서버에 문제가생겼습니다.', 500);
+      throw new HttpException('서버에 오류가 생겼습니다', 500);
     }
   }
 }

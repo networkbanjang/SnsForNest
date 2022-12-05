@@ -10,9 +10,9 @@ import {
 import { Posts } from './Posts';
 import { ApiProperty } from '@nestjs/swagger';
 
-
 @Entity()
 export class Hashtags {
+
   @ApiProperty({
     example: 1,
     description: '해시태그 아이디',
@@ -21,7 +21,7 @@ export class Hashtags {
   id: number;
 
   @ApiProperty({
-    example: "nest.js",
+    example: 'nest.js',
     description: '해시태그 이름',
   })
   @Column('varchar', { name: 'name', length: 20 })
@@ -35,7 +35,7 @@ export class Hashtags {
 
   //이하 관계
   @JoinTable({
-    name: 'posthashtags',
+    name: 'postHashTags',
     joinColumn: {
       name: 'PostId',
       referencedColumnName: 'id',

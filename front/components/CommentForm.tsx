@@ -4,13 +4,14 @@ import { useCallback,useEffect } from "react";
 import useinput from '../hooks/useinput';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_COMMENT_REQUEST } from '../reducers/post';
+import { IRootState } from '../reducers';
 
 
 
 
 const CommentForm = ({ post }) => {
   const [commentText, onChangeComment,setCommentText] = useinput('');
-  const { addCommentDone,addCommentLoading } = useSelector((state) => state.post);
+  const { addCommentDone,addCommentLoading } = useSelector((state:IRootState) => state.post);
   const dispatch = useDispatch();
 
   const onSubmitComment = useCallback(() => {
@@ -27,7 +28,7 @@ const CommentForm = ({ post }) => {
   },[addCommentDone]);
 
   //아이디
-  const id = useSelector((state) => state.user).me?.id;  //옵셔널 체이닝 AA ?. BB == 있으면 해라
+  const id = useSelector((state:IRootState) => state.user).me?.id;  //옵셔널 체이닝 AA ?. BB == 있으면 해라
 
   return (
     <Form onFinish={onSubmitComment}>
