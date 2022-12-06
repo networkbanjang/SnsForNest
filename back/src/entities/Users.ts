@@ -13,7 +13,6 @@ import { Comments } from './Comments';
 import { Posts } from './Posts';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
-import { Follow } from './Follow';
 
 @Index('email', ['email'], { unique: true })
 @Entity()

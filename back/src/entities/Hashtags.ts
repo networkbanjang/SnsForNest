@@ -12,7 +12,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Hashtags {
-
   @ApiProperty({
     example: 1,
     description: '해시태그 아이디',
@@ -34,17 +33,6 @@ export class Hashtags {
   updatedAt: Date;
 
   //이하 관계
-  @JoinTable({
-    name: 'postHashTags',
-    joinColumn: {
-      name: 'PostId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'HashtagId',
-      referencedColumnName: 'id',
-    },
-  })
   @ManyToMany(() => Posts, (posthashtag) => posthashtag.Posthashtags)
   Posthashtags: Posts[];
 }

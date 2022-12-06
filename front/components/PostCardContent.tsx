@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { useState, useCallback ,useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import TextArea from 'antd/lib/input/TextArea';
+import { IRootState } from '../reducers';
 
 const PostCardContent = ({ postData, editMode,onCancelUpdate,onUpdate}) => {
-  const {updateLoading,updateDone} = useSelector((state)=>state.post);
+  const {updateLoading,updateDone} = useSelector((state:IRootState)=>state.post);
   const [editText, setEditText] = useState(postData); //Props를 바꿀수는없지만 State는 바꿀수 있음
   useEffect(()=>{
     if(updateDone){
@@ -16,7 +17,7 @@ const PostCardContent = ({ postData, editMode,onCancelUpdate,onUpdate}) => {
 
   const onChangeText = useCallback((e) => {
     setEditText(e.target.value);
-  })
+  },[])
   
   return (
     <div>

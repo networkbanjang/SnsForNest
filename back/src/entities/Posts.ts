@@ -17,7 +17,6 @@ import { Images } from './Images';
 import { Users } from './Users';
 import { ApiProperty } from '@nestjs/swagger';
 
-
 @Entity()
 export class Posts {
   @ApiProperty({
@@ -82,6 +81,18 @@ export class Posts {
   })
   Likes: Users[];
 
+  @JoinTable({
+    name: 'posthashtags',
+    joinColumn: {
+      name: 'PostId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      //inverse가 반대
+      name: 'HashTagId',
+      referencedColumnName: 'id',
+    },
+  })
   @ManyToMany(() => Hashtags, (posthashtag) => posthashtag.Posthashtags)
   Posthashtags: Hashtags[];
 

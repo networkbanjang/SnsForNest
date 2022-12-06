@@ -14,8 +14,10 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { LoggedInGuard } from 'src/auth/logged.guard';
 import { multerOptions } from 'src/config/multerOptions';
+import { User } from 'src/decorator/decorator';
 import { Posts } from 'src/entities/Posts';
-import { postDTO } from './dto/postDTO';
+import { Users } from 'src/entities/Users';
+import { postRequestDTO } from './dto/postRequestDTO';
 import { PostService } from './post.service';
 
 @Controller('post')
@@ -45,14 +47,15 @@ export class PostController {
   @UseInterceptors(FilesInterceptor('image', 6, multerOptions('uploads')))
   @Post('images')
   uploadImage(@UploadedFiles() files: Array<Express.Multer.File>) {
-    return files.map((e) => e.filename);
+    const result = files.map((e) => e.filename);
+    return result;
   }
 
   @ApiOperation({ summary: '게시글 업로드' })
   @Post('/')
-  async createPost(@Body() body: postDTO, @Req() req) {
-    console.log(req, '미완성');
-    const result = await this.postService.CreatePost(body);
-    return null;
+  async createPost(@Body() body: postRequestDTO, @User() user: Users) {
+
+    const result = await this.postService.CreatePost(body, user);
+    return result;
   }
 }
