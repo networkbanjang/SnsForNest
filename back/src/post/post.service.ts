@@ -8,12 +8,15 @@ import { Users } from 'src/entities/Users';
 import { Hashtags } from 'src/entities/Hashtags';
 import { Posthashtags } from 'src/entities/PostHashtags';
 import { Images } from 'src/entities/Images';
+import { Comments } from 'src/entities/Comments';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Posts)
     private readonly postRepository: Repository<Posts>,
+    @InjectRepository(Comments)
+    private readonly commentRepository: Repository<Comments>,
     private dataSource: DataSource,
   ) {}
 
@@ -46,13 +49,13 @@ export class PostService {
   }
 
   //post
-  async CreatePost(body: postRequestDTO, user: Users) {
+  async createPost(body: postRequestDTO, user: Users) {
     const queryRunner = this.dataSource.createQueryRunner(); //트랜잭션을위한 쿼리 러너
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const hash = body.content.match(/#[^\s#]+/g);
-      const posts = await queryRunner.manager.getRepository(Posts).save({
+      const posts: Posts = await queryRunner.manager.getRepository(Posts).save({
         userId: user.id,
         content: body.content,
       });
@@ -124,13 +127,56 @@ export class PostService {
       }
 
       await queryRunner.commitTransaction();
-      return posts;
+      const selectQuery: string[] = SelectQuery();
+      const fullPosts = await this.postRepository
+        .createQueryBuilder('posts')
+        .select(selectQuery)
+        .innerJoin('posts.User', 'user')
+        .leftJoin('posts.Comments', 'comment')
+        .leftJoin('comment.User', 'commenter')
+        .leftJoin('posts.Likes', 'likers')
+        .leftJoin('posts.Images', 'image')
+        .leftJoin('posts.Retweet', 'retweet')
+        .leftJoin('retweet.User', 'retweetUser')
+        .where('posts.id=:id', { id: posts.id })
+        .getOne();
+      return fullPosts;
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
       throw new HttpException('작성이 실패하였습니다.', 500);
     } finally {
       queryRunner.release();
+    }
+  }
+
+  //댓글
+  async createComment(
+    postId: number,
+    content: string,
+    userId: number,
+  ): Promise<Comments> {
+    try {
+      const comment = await this.commentRepository
+        .createQueryBuilder('comment')
+        .insert()
+        .values({
+          content,
+          postId,
+          userId,
+        })
+        .execute();
+
+      const fullComment = await this.commentRepository
+        .createQueryBuilder('comment')
+        .select(['comment', 'user.id', 'user.nickname', 'user.profile'])
+        .where('comment.id=:id', { id: comment.generatedMaps[0].id })
+        .innerJoin('comment.User', 'user')
+        .getOne();
+      return fullComment;
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('작성이 실패하였습니다.', 500);
     }
   }
 }
