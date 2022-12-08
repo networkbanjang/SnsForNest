@@ -9,7 +9,11 @@ import {
   Req,
   Res,
   Patch,
+  UseInterceptors,
+  UploadedFile,
+  HttpException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiOperation,
   ApiParam,
@@ -18,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/auth/local.AuthGuard';
 import { LoggedInGuard } from 'src/auth/logged.guard';
+import { multerOptions } from 'src/config/multerOptions';
 import { User } from 'src/decorator/decorator';
 import { Users } from 'src/entities/Users';
 import { FollowDTO } from './dto/follow.request.dto';
@@ -124,5 +129,31 @@ export class UserController {
   @Patch('/nickname')
   async updateNickname(@Body('nickname') nick: string, @User() user: Users) {
     return await this.userService.updateNickname(nick, user);
+  }
+
+  @ApiOperation({ summary: '프로필 사진 업로드' })
+  @UseGuards(new LoggedInGuard())
+  @UseInterceptors(FileInterceptor('image', multerOptions('uploads/profiles')))
+  @Patch('profileUpdate')
+  profileUpdate(@UploadedFile() file: Express.Multer.File) {
+    if (file) {
+      return file.filename;
+    } else {
+      throw new HttpException('파일업로드에 실패하였습니다', 500);
+    }
+  }
+
+  @ApiOperation({ summary: '프로필 사진 적용' })
+  @UseGuards(new LoggedInGuard())
+  @Patch('profilesubmit')
+  async profileSubmit(
+    @Body('profile') profile: string,
+    @User() user: Users,
+  ): Promise<{ profile: string }> {
+    const result = await this.userService.profileSubmit(profile, user.id);
+    if (result.affected === 0) {
+      throw new HttpException('프로필이 수정되지 않았습니다', 500);
+    }
+    return { profile };
   }
 }

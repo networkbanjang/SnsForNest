@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from 'src/entities/Posts';
 import { HttpException, Injectable, ConflictException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository } from 'typeorm';
 import { postRequestDTO } from './dto/postRequestDTO';
 import SelectQuery from './query/post.select';
 import { Users } from 'src/entities/Users';
@@ -9,6 +9,7 @@ import { Hashtags } from 'src/entities/Hashtags';
 import { Posthashtags } from 'src/entities/PostHashtags';
 import { Images } from 'src/entities/Images';
 import { Comments } from 'src/entities/Comments';
+import { Likes } from 'src/entities/Likes';
 
 @Injectable()
 export class PostService {
@@ -17,6 +18,8 @@ export class PostService {
     private readonly postRepository: Repository<Posts>,
     @InjectRepository(Comments)
     private readonly commentRepository: Repository<Comments>,
+    @InjectRepository(Likes)
+    private readonly likeRepository: Repository<Likes>,
     private dataSource: DataSource,
   ) {}
 
@@ -39,7 +42,6 @@ export class PostService {
         .leftJoin('posts.Retweet', 'retweet')
         .leftJoin('retweet.User', 'retweetUser')
         .where('posts.id > :lastId', { lastId })
-        .take(limit)
         .getMany();
       return post;
     } catch (error) {
@@ -150,7 +152,7 @@ export class PostService {
     }
   }
 
-  //댓글
+  //댓글작성
   async createComment(
     postId: number,
     content: string,
@@ -177,6 +179,43 @@ export class PostService {
     } catch (error) {
       console.log(error);
       throw new HttpException('작성이 실패하였습니다.', 500);
+    }
+  }
+
+  //Patch
+
+  //좋아요추가
+  async addLike(postId: number, userId: number): Promise<Likes> {
+    const post = await this.postRepository
+      .createQueryBuilder('post')
+      .where('post.id=:id', {
+        id: postId,
+      })
+      .getOne();
+    const like = await this.likeRepository.save({
+      postId,
+      userId,
+    });
+    if (!post) {
+      throw new HttpException('게시글이 존재하지 않습니다', 404);
+    }
+    return like;
+  }
+
+  //Delete
+  async deletePost(postId: number, userId: number): Promise<DeleteResult> {
+    try {
+      const result = await this.postRepository
+        .createQueryBuilder('posts')
+        .delete()
+        .from('Posts')
+        .where('id=:id', { id: postId, userId })
+        .andWhere('userId=:userId', { userId })
+        .execute();
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('삭제 실패하였습니다', 500);
     }
   }
 }

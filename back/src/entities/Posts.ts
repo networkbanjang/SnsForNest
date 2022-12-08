@@ -71,15 +71,15 @@ export class Posts {
   @JoinTable({
     name: 'like',
     joinColumn: {
-      name: 'UserId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
       name: 'PostId',
       referencedColumnName: 'id',
     },
+    inverseJoinColumn: {
+      name: 'UserId',
+      referencedColumnName: 'id',
+    },
   })
-  Likes: Users[];
+  Likes: any[];
 
   @JoinTable({
     name: 'posthashtags',

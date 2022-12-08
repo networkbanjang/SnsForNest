@@ -1,8 +1,8 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException, Injectable, ConflictException } from '@nestjs/common';
-import { InjectRepository} from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { JoinDTO } from './dto/join.request.dto';
 import * as bcrypt from 'bcrypt';
 import { FollowDTO } from './dto/follow.request.dto';
@@ -13,16 +13,14 @@ export class UserService {
     private readonly mailerService: MailerService,
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
-
   ) {}
 
   //Get
 
   async getUserInfo(user: Users): Promise<Users> {
     //유저정보 불러오기
-    try { 
+    try {
       if (user) {
-      
         const findUser = await this.userRepository.findOne({
           where: { id: user.id },
           select: {
@@ -136,12 +134,30 @@ export class UserService {
       const findUser: Users = await this.userRepository.findOneBy({
         id: user.id,
       });
-      findUser.nickname=nick;
+      findUser.nickname = nick;
       await this.userRepository.save(findUser);
       return findUser;
     } catch (error) {
       console.error(error);
       throw new HttpException('서버에 오류가 생겼습니다', 500);
+    }
+  }
+
+  //프로필 수정 적용
+  async profileSubmit(profile: string, id: number): Promise<UpdateResult> {
+    try {
+      const result = this.userRepository
+        .createQueryBuilder('user')
+        .update()
+        .set({
+          profile,
+        })
+        .where('id=:id', { id })
+        .execute();
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(error, 500);
     }
   }
 }

@@ -58,7 +58,6 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
     type: LOAD_POSTS_REQUEST,
   });
   context.store.dispatch(END);
-  console.log('엔드!');
   await context.store.sagaTask.toPromise();
 })  //이부분이 홈 보다 먼저 실행됨 , 여기서실행된 결과를 HYDRATE로 보냄
 

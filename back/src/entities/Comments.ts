@@ -51,7 +51,7 @@ export class Comments {
   postId: number | null;
 
   @ManyToOne(() => Posts, (posts) => posts.Comments, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'PostId', referencedColumnName: 'id' }])

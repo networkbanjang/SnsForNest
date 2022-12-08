@@ -213,7 +213,7 @@ function* sendEmail(action) {
 
 function prifileUpdateAPI(data) {
   //프로필 수정
-  return axios.post("/user/profileUpdate", data);
+  return axios.patch("/user/profileUpdate", data);
 }
 
 function* prifileUpdate(action) {

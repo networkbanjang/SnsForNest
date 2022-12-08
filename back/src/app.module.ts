@@ -14,6 +14,7 @@ import { LoggerMiddleware } from './logger/looger.middleware';
 import { Follow } from './entities/Follow';
 import { PostModule } from './post/post.module';
 import { Posthashtags } from './entities/PostHashtags';
+import { Likes } from './entities/Likes';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { Posthashtags } from './entities/PostHashtags';
         Comments,
         Follow,
         Posthashtags,
+        Likes,
       ],
       synchronize: false, //동기화
       logging: true, //로그 남기기

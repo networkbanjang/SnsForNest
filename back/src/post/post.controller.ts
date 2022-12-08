@@ -10,6 +10,9 @@ import {
   Query,
   ParseIntPipe,
   Param,
+  Delete,
+  HttpException,
+  Patch,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiProperty, ApiResponse } from '@nestjs/swagger';
@@ -17,8 +20,10 @@ import { LoggedInGuard } from 'src/auth/logged.guard';
 import { multerOptions } from 'src/config/multerOptions';
 import { User } from 'src/decorator/decorator';
 import { Comments } from 'src/entities/Comments';
+import { Likes } from 'src/entities/Likes';
 import { Posts } from 'src/entities/Posts';
 import { Users } from 'src/entities/Users';
+import { DeleteResult } from 'typeorm';
 import { postRequestDTO } from './dto/postRequestDTO';
 import { PostService } from './post.service';
 
@@ -80,5 +85,38 @@ export class PostController {
       user.id,
     );
     return result;
+  }
+
+  //Patch
+  @ApiOperation({ summary: '좋아요' })
+  @ApiResponse({ status: 200, description: '성공', type: Posts })
+  @UseGuards(new LoggedInGuard())
+  @Patch('/:postId/like')
+  async likePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @User() user: Users,
+  ): Promise<Likes> {
+    const result = await this.postService.addLike(postId, user.id);
+    return result;
+  }
+
+  //delete
+
+  @ApiOperation({ summary: '게시글 삭제' })
+  @ApiResponse({ status: 200, description: '성공' })
+  @UseGuards(new LoggedInGuard())
+  @Delete('/:postId')
+  async deletePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @User() user: Users,
+  ): Promise<number> {
+    const result: DeleteResult = await this.postService.deletePost(
+      postId,
+      user.id,
+    );
+    if (result.affected === 0) {
+      throw new HttpException('삭제할 게시글이 존재하지않습니다.', 403);
+    }
+    return postId;
   }
 }
