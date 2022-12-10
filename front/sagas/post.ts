@@ -106,7 +106,7 @@ function* loadUserPosts(action) {
 //해쉬태그
 function loadHashtagPostsAPI(data, lastId) {
   return axios.get(
-    `/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`
+    `/post/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`
   );
 }
 function* loadHashtagPosts(action) {
@@ -300,7 +300,7 @@ function* updatePost(action) {
 }
 
 //팔로잉한 게시글
-function loadFollowingPostsAPI(data, lastId) {
+function loadFollowingPostsAPI(lastId) {
   return axios.get(`/post/following?limit=5&lastId=${lastId || 0}`);
 }
 function* loadFollowingPosts(action) {

@@ -25,5 +25,5 @@ export class Posthashtags {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'HashTagId', referencedColumnName: 'id' }])
-  HashTagId: Posts[];
+  HashTagId: Hashtags[];
 }

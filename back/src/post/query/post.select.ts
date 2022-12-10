@@ -16,6 +16,7 @@ const SelectQuery = () => {
     'retweetUser.id',
     'retweetUser.nickname',
     'retweetUser.profile',
+    'retweetImages',
     'image.id',
     'image.src',
   ];

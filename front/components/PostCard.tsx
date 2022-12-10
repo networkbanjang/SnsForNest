@@ -100,7 +100,7 @@ const PostCard = ({ post }) => {
           <Popover key="more" content={(
             <Button.Group>
               {id && post.User.id === id ? (<>
-                {!post.RetweetId && <Button onClick={onChangePost} type='primary' >수정</Button>}
+                {!post.retweetId && <Button onClick={onChangePost} type='primary' >수정</Button>}
                 <Button type='danger' onClick={onRemovePost}>삭제</Button> </>)
                 : <Button>신고</Button>}
             </Button.Group>
@@ -108,11 +108,11 @@ const PostCard = ({ post }) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
-        title={post.RetweetId ? `${post.User.nickname}님이 리트윗하셨습니다.` : null}
+        title={post.retweetId ? `${post.User.nickname}님이 리트윗하셨습니다.` : null}
         extra={id && <FollowButton post={post} />}
       >
 
-        {post.RetweetId && post.Retweet
+        {post.retweetId && post.Retweet
           ? (
             <Card
               cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}

@@ -48,6 +48,20 @@ export class PostController {
     return result;
   }
 
+  @ApiOperation({ summary: '해시태그로 검색' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: Posts,
+  })
+  @Get('/hashtag/:tag')
+  async serarchHashtag(
+    @Param('tag') tag: string,
+    @Query('lastId', ParseIntPipe) lastId: number,
+  ): Promise<Posts[]> {
+    const result = await this.postService.searchHashtag(tag, lastId);
+    return result;
+  }
   //post
   @ApiOperation({ summary: '파일 업로드' })
   @UseGuards(new LoggedInGuard())
@@ -87,6 +101,17 @@ export class PostController {
     return result;
   }
 
+  @ApiOperation({ summary: '리트윗' })
+  @UseGuards(new LoggedInGuard())
+  @Post('/:postId/retweet')
+  async retweetPost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @User() user: Users,
+  ): Promise<Posts> {
+    const result = await this.postService.retweetPost(postId, user.id);
+    return result;
+  }
+
   //Patch
   @ApiOperation({ summary: '좋아요' })
   @ApiResponse({ status: 200, description: '성공', type: Posts })
@@ -97,6 +122,19 @@ export class PostController {
     @User() user: Users,
   ): Promise<Likes> {
     const result = await this.postService.addLike(postId, user.id);
+    return result;
+  }
+
+  @ApiOperation({ summary: '게시글 수정' })
+  @ApiResponse({ status: 200, description: '성공', type: Posts })
+  @UseGuards(new LoggedInGuard())
+  @Patch('/:postId')
+  async updatePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @User() user: Users,
+    @Body('content') content: string,
+  ): Promise<Posts> {
+    const result = await this.postService.updatePost(postId, user.id, content);
     return result;
   }
 
