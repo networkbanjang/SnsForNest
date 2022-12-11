@@ -2,6 +2,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Follow } from 'src/entities/Follow';
 import { Users } from 'src/entities/Users';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -21,7 +22,7 @@ import { UserService } from './user.service';
         },
       },
     }),
-    TypeOrmModule.forFeature([Users]), //
+    TypeOrmModule.forFeature([Users, Follow]), //
   ],
   controllers: [UserController],
   providers: [UserService],

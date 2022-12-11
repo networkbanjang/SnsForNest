@@ -12,6 +12,8 @@ import {
   UseInterceptors,
   UploadedFile,
   HttpException,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -155,5 +157,34 @@ export class UserController {
       throw new HttpException('프로필이 수정되지 않았습니다', 500);
     }
     return { profile };
+  }
+
+  @ApiOperation({ summary: '팔로우 추가' })
+  @UseGuards(new LoggedInGuard())
+  @Patch('/:userId/follow')
+  async addFollow(
+    @Param('userId', ParseIntPipe) followingId: number,
+    @User() user: Users,
+  ) {
+    const result = await this.userService.addFollow(followingId, user.id);
+    if (!result) {
+      throw new HttpException('팔로워가 추가되지 않았습니다.', 500);
+    }
+    return { userId: followingId };
+  }
+
+  //Delete
+  @ApiOperation({ summary: '팔로우 취소' })
+  @UseGuards(new LoggedInGuard())
+  @Delete(':userId/follow')
+  async removeFollow(
+    @Param('userId', ParseIntPipe) followingId: number,
+    @User() user: Users,
+  ) {
+    const result = await this.userService.deleteFollow(followingId, user.id);
+    if (result.affected === 0) {
+      throw new HttpException('팔로워가 삭제되지 않았습니다.', 500);
+    }
+    return { userId: followingId };
   }
 }

@@ -2,10 +2,11 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { HttpException, Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { JoinDTO } from './dto/join.request.dto';
 import * as bcrypt from 'bcrypt';
 import { FollowDTO } from './dto/follow.request.dto';
+import { Follow } from 'src/entities/Follow';
 
 @Injectable()
 export class UserService {
@@ -13,6 +14,8 @@ export class UserService {
     private readonly mailerService: MailerService,
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
+    @InjectRepository(Follow)
+    private readonly followRepository: Repository<Follow>,
   ) {}
 
   //Get
@@ -157,6 +160,47 @@ export class UserService {
       return result;
     } catch (error) {
       console.error(error);
+      throw new HttpException(error, 500);
+    }
+  }
+
+  //팔로우 추소
+  async addFollow(followingId: number, followerId: number): Promise<Follow> {
+    try {
+      const user = this.userRepository.findOneBy({ id: followingId });
+      if (!user) {
+        throw new HttpException('잘못된 요청입니다.', 403);
+      }
+      const result = await this.followRepository.save({
+        followingId,
+        followerId,
+      });
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error, 500);
+    }
+  }
+
+  //delete
+
+  //언팔
+  async deleteFollow(
+    followingId: number,
+    followerId: number,
+  ): Promise<DeleteResult> {
+    try {
+      const user = this.userRepository.findOneBy({ id: followingId });
+      if (!user) {
+        throw new HttpException('잘못된 요청입니다.', 403);
+      }
+      const result = await this.followRepository.delete({
+        followerId,
+        followingId,
+      });
+      return result;
+    } catch (error) {
+      console.log(error);
       throw new HttpException(error, 500);
     }
   }
