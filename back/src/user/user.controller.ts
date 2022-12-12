@@ -79,6 +79,17 @@ export class UserController {
     return await this.userService.getFollowers(limit, user);
   }
 
+  @ApiOperation({ summary: '타인의 프로필 보기' })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: Users,
+  })
+  @Get('/:id')
+  async getProfile(@Param('id', ParseIntPipe) id: number): Promise<Users> {
+    const result = await this.userService.getProfile(id);
+    return result;
+  }
   //Post
   @ApiProperty({
     example: 1,
@@ -174,7 +185,7 @@ export class UserController {
   }
 
   //Delete
-  @ApiOperation({ summary: '팔로우 취소' })
+  @ApiOperation({ summary: '언팔로우' })
   @UseGuards(new LoggedInGuard())
   @Delete(':userId/follow')
   async removeFollow(

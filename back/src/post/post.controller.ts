@@ -62,6 +62,17 @@ export class PostController {
     const result = await this.postService.searchHashtag(tag, lastId);
     return result;
   }
+
+  @ApiOperation({ summary: '아이디로 검색' })
+  @Get('/:id')
+  async searchId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('lastId', ParseIntPipe) lastId: number,
+  ) {
+    const result = await this.postService.searchId(id, lastId);
+    return result;
+  }
+
   //post
   @ApiOperation({ summary: '파일 업로드' })
   @UseGuards(new LoggedInGuard())

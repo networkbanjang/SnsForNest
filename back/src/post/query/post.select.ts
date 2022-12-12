@@ -22,4 +22,6 @@ const SelectQuery = () => {
   ];
 };
 
+
+
 export default SelectQuery;

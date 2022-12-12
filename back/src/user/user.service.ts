@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { JoinDTO } from './dto/join.request.dto';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { FollowDTO } from './dto/follow.request.dto';
 import { Follow } from 'src/entities/Follow';
 
@@ -42,8 +42,8 @@ export class UserService {
     }
   }
 
+  //팔로잉불러오기
   async getFollowings(limit: number, user: Users): Promise<FollowDTO[]> {
-    //팔로잉 불러오기
     try {
       const findUser: FollowDTO[] = await this.userRepository
         .createQueryBuilder('user')
@@ -58,8 +58,9 @@ export class UserService {
       throw new HttpException('서버에 문제가생겼습니다.', 500);
     }
   }
+
+  //팔로워 불러오기
   async getFollowers(limit: number, user: Users): Promise<FollowDTO[]> {
-    //팔로워 불러오기
     try {
       const findUser: FollowDTO[] = await this.userRepository
         .createQueryBuilder('user')
@@ -69,6 +70,26 @@ export class UserService {
         .innerJoin('user.Followings', 'b')
         .getMany();
       return findUser;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('서버에 문제가생겼습니다.', 500);
+    }
+  }
+
+  //남의 프로필 보기
+  async getProfile(id: number): Promise<Users> {
+    try {
+      const findUser = await this.userRepository.findOne({
+        where: { id },
+        select: {
+          Posts: { id: true },
+          Followers: { id: true },
+          Followings: { id: true },
+        },
+        relations: ['Posts', 'Followers', 'Followings'],
+      });
+      const { password, ...result } = findUser;
+      return result;
     } catch (error) {
       console.error(error);
       throw new HttpException('서버에 문제가생겼습니다.', 500);

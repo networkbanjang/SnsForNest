@@ -85,7 +85,7 @@ function* loadPost(action) {
 
 //유저 게시글가져오기
 function loadUserPostsAPI(data, lastId) {
-  return axios.get(`/user/${data}/post?lastId=${lastId || 0}`);
+  return axios.get(`/post/${data}?lastId=${lastId || 0}`);
 }
 function* loadUserPosts(action) {
   try {

@@ -1,7 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from 'src/entities/Posts';
 import { HttpException, Injectable, ConflictException } from '@nestjs/common';
-import { DataSource, DeleteResult, Repository } from 'typeorm';
+import {
+  DataSource,
+  DeleteResult,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { postRequestDTO } from './dto/postRequestDTO';
 import SelectQuery from './query/post.select';
 import { Users } from 'src/entities/Users';
@@ -23,14 +28,11 @@ export class PostService {
     private dataSource: DataSource,
   ) {}
 
-  //get
-  async getPosts(limit: number, lastId: number): Promise<Posts[]> {
+  //중복쿼리
+  async queryBuilder(): Promise<SelectQueryBuilder<Posts>> {
     const selectQuery: string[] = SelectQuery();
     try {
-      if (!lastId) {
-        lastId = 0;
-      }
-      const post = await this.postRepository
+      const post = this.postRepository
         .createQueryBuilder('posts')
         .select(selectQuery)
         .orderBy('posts.createdAt', 'DESC')
@@ -41,10 +43,23 @@ export class PostService {
         .leftJoin('posts.Images', 'image')
         .leftJoin('posts.Retweet', 'retweet')
         .leftJoin('retweet.User', 'retweetUser')
-        .leftJoin('retweet.Images', 'retweetImages')
-        .where('posts.id > :lastId', { lastId })
-        .getMany();
+        .leftJoin('retweet.Images', 'retweetImages');
       return post;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(error, 500);
+    }
+  }
+  //get
+  async getPosts(limit: number, lastId: number): Promise<Posts[]> {
+    try {
+      if (!lastId) {
+        lastId = 0;
+      }
+      const post = await this.queryBuilder();
+      post.where('posts.id > :lastId', { lastId });
+      const result = post.getMany();
+      return result;
     } catch (error) {
       console.log(error);
       throw new HttpException('Server Fatal error', 500);
@@ -52,29 +67,30 @@ export class PostService {
   }
 
   async searchHashtag(tag: string, lastId: number): Promise<Posts[]> {
-    const selectQuery: string[] = SelectQuery();
     try {
-      const post = await this.postRepository
-        .createQueryBuilder('posts')
-        .select(selectQuery)
-        .orderBy('posts.createdAt', 'DESC')
-        .innerJoin('posts.User', 'user')
-        .leftJoin('posts.Comments', 'comment')
-        .leftJoin('comment.User', 'commenter')
-        .leftJoin('posts.Likes', 'likers')
-        .leftJoin('posts.Images', 'image')
-        .innerJoin(
-          'posts.Posthashtags',
-          'postHashtags',
-          'postHashtags.name=:tag',
-          { tag },
-        )
-        .leftJoin('posts.Retweet', 'retweet')
-        .leftJoin('retweet.User', 'retweetUser')
-        .leftJoin('retweet.Images', 'retweetImages')
-        .where('posts.id > :lastId', { lastId })
-        .getMany();
-      return post;
+      const post = await this.queryBuilder();
+      post.innerJoin(
+        'posts.Posthashtags',
+        'postHashtags',
+        'postHashtags.name=:tag',
+        { tag },
+      );
+      post.where('posts.id > :lastId', { lastId });
+      const result = await post.getMany();
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('Server Fatal error', 500);
+    }
+  }
+
+  async searchId(id: number, lastId: number): Promise<Posts[]> {
+    try {
+      const post = await this.queryBuilder();
+      post.where('posts.id > :lastId', { lastId });
+      post.andWhere('posts.userId=:id', { id });
+      const result = await post.getMany();
+      return result;
     } catch (error) {
       console.error(error);
       throw new HttpException('Server Fatal error', 500);
@@ -82,7 +98,7 @@ export class PostService {
   }
 
   //post
-  async createPost(body: postRequestDTO, user: Users) {
+  async createPost(body: postRequestDTO, user: Users): Promise<Posts> {
     const queryRunner = this.dataSource.createQueryRunner(); //트랜잭션을위한 쿼리 러너
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -160,21 +176,10 @@ export class PostService {
       }
 
       await queryRunner.commitTransaction();
-      const selectQuery: string[] = SelectQuery();
-      const fullPosts = await this.postRepository
-        .createQueryBuilder('posts')
-        .select(selectQuery)
-        .innerJoin('posts.User', 'user')
-        .leftJoin('posts.Comments', 'comment')
-        .leftJoin('comment.User', 'commenter')
-        .leftJoin('posts.Likes', 'likers')
-        .leftJoin('posts.Images', 'image')
-        .leftJoin('posts.Retweet', 'retweet')
-        .leftJoin('retweet.User', 'retweetUser')
-        .leftJoin('retweet.Images', 'retweetImages')
-        .where('posts.id=:id', { id: posts.id })
-        .getOne();
-      return fullPosts;
+      const fullPosts = await this.queryBuilder();
+      fullPosts.where('posts.id=:id', { id: posts.id });
+      const result = await fullPosts.getOne();
+      return result;
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
@@ -232,7 +237,7 @@ export class PostService {
     if (post.retweetId) {
       throw new HttpException('리트윗한 글을 또 리트윗할 수 없습니다.', 500);
     }
-    const result = await this.postRepository
+    await this.postRepository
       .createQueryBuilder('posts')
       .insert()
       .values({
@@ -242,22 +247,11 @@ export class PostService {
       })
       .execute();
 
-    const selectQuery: string[] = SelectQuery();
+    const retweetWithPrevPost = await this.queryBuilder();
 
-    const retweetWithPrevPost = await this.postRepository
-      .createQueryBuilder('posts')
-      .select(selectQuery)
-      .innerJoin('posts.User', 'user')
-      .leftJoin('posts.Comments', 'comment')
-      .leftJoin('comment.User', 'commenter')
-      .leftJoin('posts.Likes', 'likers')
-      .leftJoin('posts.Images', 'image')
-      .leftJoin('posts.Retweet', 'retweet')
-      .leftJoin('retweet.User', 'retweetUser')
-      .leftJoin('retweet.Images', 'retweetImages')
-      .where('posts.retweetId=:id', { id: post.id })
-      .getOne();
-    return retweetWithPrevPost;
+    retweetWithPrevPost.where('posts.retweetId=:id', { id: post.id });
+    const result = await retweetWithPrevPost.getOne();
+    return result;
   }
   //Patch
 
