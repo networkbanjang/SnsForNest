@@ -8,10 +8,11 @@ import { LOAD_POSTS_REQUEST } from "../reducers/post";
 import wrapper from "../store/configureStore";
 import { END } from 'redux-saga';
 import axios from 'axios';
+import { IRootState } from "../reducers";
 
 const Home = () => {
-  const { me } = useSelector((state) => state.user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector((state) => state.post);
+  const { me } = useSelector((state:IRootState) => state.user);
+  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector((state:IRootState) => state.post);
 
   const dispatch = useDispatch();
 

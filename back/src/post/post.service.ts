@@ -43,7 +43,8 @@ export class PostService {
         .leftJoin('posts.Images', 'image')
         .leftJoin('posts.Retweet', 'retweet')
         .leftJoin('retweet.User', 'retweetUser')
-        .leftJoin('retweet.Images', 'retweetImages');
+        .leftJoin('retweet.Images', 'retweetImages')
+        .limit(5);
       return post;
     } catch (error) {
       console.error(error);
@@ -51,13 +52,13 @@ export class PostService {
     }
   }
   //get
-  async getPosts(limit: number, lastId: number): Promise<Posts[]> {
+  async getPosts(lastId: number): Promise<Posts[]> {
     try {
-      if (!lastId) {
-        lastId = 0;
-      }
       const post = await this.queryBuilder();
-      post.where('posts.id > :lastId', { lastId });
+      if (lastId) {
+        post.where('posts.id < :lastId', { lastId });
+      }
+
       const result = post.getMany();
       return result;
     } catch (error) {
@@ -69,13 +70,16 @@ export class PostService {
   async searchHashtag(tag: string, lastId: number): Promise<Posts[]> {
     try {
       const post = await this.queryBuilder();
+      if (lastId) {
+        post.where('posts.id < :lastId', { lastId });
+      }
       post.innerJoin(
         'posts.Posthashtags',
         'postHashtags',
         'postHashtags.name=:tag',
         { tag },
       );
-      post.where('posts.id > :lastId', { lastId });
+
       const result = await post.getMany();
       return result;
     } catch (error) {
@@ -87,7 +91,10 @@ export class PostService {
   async searchId(id: number, lastId: number): Promise<Posts[]> {
     try {
       const post = await this.queryBuilder();
-      post.where('posts.id > :lastId', { lastId });
+      if (lastId) {
+        post.where('posts.id < :lastId', { lastId });
+      }
+
       post.andWhere('posts.userId=:id', { id });
       const result = await post.getMany();
       return result;

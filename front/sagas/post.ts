@@ -47,7 +47,7 @@ import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 
 //스크롤링
 function loadPostsAPI(lastId) {
-  return axios.get(`/post?limit=5&lastId=${lastId || 0}`);
+  return axios.get(`/post?lastId=${lastId || 0}`);
 }
 function* loadPosts(action) {
   try {
@@ -301,7 +301,7 @@ function* updatePost(action) {
 
 //팔로잉한 게시글
 function loadFollowingPostsAPI(lastId) {
-  return axios.get(`/post/following?limit=5&lastId=${lastId || 0}`);
+  return axios.get(`/post/following?lastId=${lastId || 0}`);
 }
 function* loadFollowingPosts(action) {
   try {

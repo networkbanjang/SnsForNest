@@ -40,11 +40,9 @@ export class PostController {
   })
   @Get('/')
   async getPosts(
-    @Query() query: { limit: string; lastId?: string },
+    @Query('lastId', ParseIntPipe) lastId,
   ): Promise<Posts[]> {
-    const limit = parseInt(query.limit);
-    const lastId = parseInt(query.lastId);
-    const result = await this.postService.getPosts(limit, lastId);
+    const result = await this.postService.getPosts(lastId);
     return result;
   }
 
