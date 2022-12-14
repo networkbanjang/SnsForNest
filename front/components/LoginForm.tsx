@@ -49,7 +49,7 @@ const LoginForm = () => {
       <ButtonWrapper>
         <Button type='primary' htmlType='submit' loading={logInLoading} >로그인</Button>
         <Link href='/signUp'><a><Button>회원가입</Button></a></Link>
-        <a href= 'http://localhost:3065/loginappend/kakaologin'> <Button >카카오톡</Button></a>
+        <a href= 'http://localhost:3065/user/kakaologin'> <Button >카카오톡</Button></a>
       </ButtonWrapper>
 
     </FormWrapper>

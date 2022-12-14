@@ -15,6 +15,8 @@ import { Follow } from './entities/Follow';
 import { PostModule } from './post/post.module';
 import { Posthashtags } from './entities/PostHashtags';
 import { Likes } from './entities/Likes';
+import { MessageGateway } from './message/message.gateway';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { Likes } from './entities/Likes';
     UserModule,
     AuthModule,
     PostModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

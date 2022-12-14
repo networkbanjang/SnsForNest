@@ -22,6 +22,8 @@ import {
   ApiProperty,
   ApiResponse,
 } from '@nestjs/swagger';
+import passport from 'passport';
+import { KakaoAuthGuard } from 'src/auth/kakao.AuthGuard';
 import { LocalAuthGuard } from 'src/auth/local.AuthGuard';
 import { LoggedInGuard } from 'src/auth/logged.guard';
 import { multerOptions } from 'src/config/multerOptions';
@@ -77,6 +79,17 @@ export class UserController {
     @User() user: Users,
   ): Promise<FollowDTO[]> {
     return await this.userService.getFollowers(limit, user);
+  }
+
+  //카카오 로그인
+  @Get('/kakaologin')
+  @UseGuards(KakaoAuthGuard)
+  kakaoLogin() {}
+
+  @Get('/kakao')
+  @UseGuards(KakaoAuthGuard)
+  kakao(@Res() res) {
+    res.redirect('http://localhost:3060/');
   }
 
   @ApiOperation({ summary: '타인의 프로필 보기' })

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
@@ -25,5 +25,26 @@ export class AuthService {
       return userWithoutPassowrd;
     }
     return null;
+  }
+
+  async kakaoUser(accessToken, refreshToken, profile, done) {
+    try {
+      const exUser = await this.userRepository.findOne({
+        where: { snsId: profile.id },
+      });
+      if (exUser) {
+        done(null, exUser);
+      } else {
+        const newUser = await this.userRepository.save({
+          email: profile._json.kakao_account.email,
+          nickname: profile.displayName,
+          snsId: profile.id,
+        });
+        done(null, newUser);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error, 500);
+    }
   }
 }
