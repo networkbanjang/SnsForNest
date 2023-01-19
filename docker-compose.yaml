@@ -1,0 +1,38 @@
+#버전
+version : '3.8'
+#서비스들
+services :
+#WEB 관련 서비스
+#DB관련 서비스
+  mysql-container:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_ROOT_DB}
+    ports:
+      - '3306:3306'
+    #utf-8 에러 해결
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+
+    container_name: mysql
+
+  nestback:
+    image: nestback:0.01
+    restart: always
+    ports:
+      - '3065:3065'
+    container_name: nestBack
+    volumes:
+      - /root/snsForNest/back/src:/usr/sec/app/src
+#종속성
+    depends_on:
+      - mysql-container
+  nextfront:
+    image: nextfront:0.01
+    restart: always
+    ports:
+      - '80:3060'
+    container_name: nextFront
+    volumes:
+      - /root/snsForNest/front/:/usr/sec/app/
